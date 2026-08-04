@@ -1,0 +1,67 @@
+import { Link, NavLink } from 'react-router-dom';
+import type { ReactNode } from 'react';
+
+type LayoutProps = {
+  children: ReactNode;
+};
+
+const navItems = [
+  { to: '/', label: 'Home' },
+  { to: '/shop', label: 'Shop' },
+  { to: '/faq', label: 'FAQ' },
+  { to: '/privacy', label: 'Privacy' },
+  { to: '/terms', label: 'Terms' },
+];
+
+export default function Layout({ children }: LayoutProps) {
+  return (
+    <div className="min-h-screen bg-[#f8f9fa] text-[#333]">
+      <nav className="fixed top-0 z-50 w-full bg-white/95 px-8 py-4 shadow-[0_2px_10px_rgba(0,0,0,0.1)] backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
+          <Link to="/" className="flex items-center gap-2">
+            <img
+              src="https://i.ibb.co/yFgsqx49/IMG-20251112-WA0082.jpg"
+              alt="May's Chills logo"
+              className="h-12 w-auto"
+            />
+            <span className="text-xl font-semibold text-[#333]">May's Chills</span>
+          </Link>
+          <ul className="hidden items-center gap-8 md:flex">
+            {navItems.map((item) => (
+              <li key={item.to}>
+                <NavLink
+                  to={item.to}
+                  className={({ isActive }) =>
+                    `font-medium transition-colors ${isActive ? 'text-[#7ed321]' : 'text-[#333] hover:text-[#7ed321]'}`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+          <Link to="/shop" className="flex h-10 w-10 items-center justify-center rounded-full bg-[#7ed321] text-lg text-white">
+            🛒
+          </Link>
+        </div>
+      </nav>
+      <main className="pt-24">{children}</main>
+      <footer className="bg-[#1a1a1a] px-8 py-16 text-white">
+        <div className="mx-auto flex max-w-7xl flex-col gap-8 md:flex-row md:justify-between">
+          <div>
+            <h3 className="mb-3 text-xl font-semibold">May&apos;s Chills</h3>
+            <p className="max-w-md text-sm text-gray-300">
+              Fresh meals, healthy options, and fast delivery for your everyday cravings.
+            </p>
+          </div>
+          <div className="flex flex-col gap-2 text-sm text-gray-300">
+            <Link to="/shop" className="hover:text-[#7ed321]">Shop</Link>
+            <Link to="/faq" className="hover:text-[#7ed321]">FAQ</Link>
+            <Link to="/privacy" className="hover:text-[#7ed321]">Privacy</Link>
+            <Link to="/terms" className="hover:text-[#7ed321]">Terms</Link>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}

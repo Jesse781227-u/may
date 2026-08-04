@@ -1,0 +1,52 @@
+import type { MenuItem } from '../types';
+
+export const menuItems: MenuItem[] = [
+  {
+    id: 'chicken-salad',
+    name: 'Chicken Salad',
+    category: 'salads',
+    price: 6500,
+    description: 'Grilled Chicken, Egg, Fresh Vegetables',
+    image: 'https://i.ibb.co/NntWJ35r/IMG-20251214-172816-208.jpg',
+    ingredients: 'Grilled Chicken, Egg, Fresh Vegetables',
+    rating: '⭐⭐⭐⭐⭐',
+  },
+  {
+    id: 'parfait',
+    name: '400ml Parfait',
+    category: 'desserts',
+    price: 6500,
+    description: 'Greek Yoghurt, Granola, Fresh Fruits, Honey',
+    image: 'https://i.ibb.co/qM4FtQFq/IMG-20251214-172855-010.jpg',
+    ingredients: 'Greek Yoghurt, Granola, Fresh Fruits, Honey',
+    rating: '⭐⭐⭐⭐⭐',
+  },
+  {
+    id: 'chicken-wrap',
+    name: 'Chicken Wrap',
+    category: 'wraps',
+    price: 6500,
+    description: 'Crispy Chicken, Fresh Vegetables, Sauce',
+    image: 'https://i.ibb.co/1f5FK259/IMG-20251219-130436-348.jpg',
+    ingredients: 'Crispy Chicken, Fresh Vegetables, Sauce',
+    rating: '⭐⭐⭐⭐⭐',
+  },
+  {
+    id: 'thai-bowl',
+    name: 'Thai Bowl',
+    category: 'bowls',
+    price: 6500,
+    description: 'Thai-inspired bowl with fresh vegetables and sauce',
+    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80',
+    ingredients: 'Thai-inspired bowl with fresh vegetables and sauce',
+  },
+  {
+    id: 'fresh-juice',
+    name: 'Fresh Juice',
+    category: 'drinks',
+    price: 2500,
+    description: 'Refreshing fresh juice',
+    image: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?auto=format&fit=crop&w=800&q=80',
+    ingredients: 'Refreshing fresh juice',
+  },
+];
