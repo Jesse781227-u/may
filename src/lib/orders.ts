@@ -17,6 +17,10 @@ export async function createOrderRecord(payload: {
   paymentReference: string;
   uid?: string | null;
 }) {
+  if (!db) {
+    return `local-${Date.now()}`;
+  }
+
   const docRef = await addDoc(collection(db, 'orders'), {
     ...payload,
     createdAt: serverTimestamp(),
