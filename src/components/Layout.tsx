@@ -1,4 +1,5 @@
 import { Link, NavLink } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import type { ReactNode } from 'react';
 
 type LayoutProps = {
@@ -14,6 +15,8 @@ const navItems = [
 ];
 
 export default function Layout({ children }: LayoutProps) {
+  const { user, loading, signInWithGoogle, signOut } = useAuth();
+
   return (
     <div className="min-h-screen bg-[#f8f9fa] text-[#333]">
       <nav className="fixed top-0 z-50 w-full bg-white/95 px-8 py-4 shadow-[0_2px_10px_rgba(0,0,0,0.1)] backdrop-blur">
@@ -40,9 +43,20 @@ export default function Layout({ children }: LayoutProps) {
               </li>
             ))}
           </ul>
-          <Link to="/shop" className="flex h-10 w-10 items-center justify-center rounded-full bg-[#7ed321] text-lg text-white">
-            🛒
-          </Link>
+          <div className="flex items-center gap-3">
+            {loading ? null : user ? (
+              <button type="button" onClick={() => signOut()} className="rounded-full border border-[#e8f5e8] px-3 py-2 text-sm font-semibold">
+                Sign out
+              </button>
+            ) : (
+              <button type="button" onClick={() => signInWithGoogle()} className="rounded-full bg-[#7ed321] px-3 py-2 text-sm font-semibold text-white">
+                Sign in
+              </button>
+            )}
+            <Link to="/shop" className="flex h-10 w-10 items-center justify-center rounded-full bg-[#7ed321] text-lg text-white">
+              🛒
+            </Link>
+          </div>
         </div>
       </nav>
       <main className="pt-24">{children}</main>

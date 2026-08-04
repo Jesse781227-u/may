@@ -1,6 +1,13 @@
 import { useMemo, useState } from 'react';
+import { PaystackButton } from 'react-paystack';
 import { menuItems } from '../data/menu';
+import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { createOrderRecord } from '../lib/orders';
+import { getPaystackAmount, getPaystackMetadata, getPaystackPublicKey } from '../lib/paystack';
+import { submitWebhookOrder } from '../lib/webhook';
+
+const liveWebhookUrl = import.meta.env.VITE_WEBHOOK_URL || '';
 import type { MenuItem, OrderType } from '../types';
 
 const orderTypeLabels: Record<OrderType, string> = {
@@ -14,7 +21,8 @@ function formatCurrency(value: number) {
 }
 
 export default function ShopPage() {
-  const { items, subtotal, deliveryFee, total, orderType, setOrderType, addItem, removeItem, updateQuantity, itemCount } = useCart();
+  const { user } = useAuth();
+  const { items, subtotal, deliveryFee, total, orderType, setOrderType, addItem, removeItem, updateQuantity, itemCount, clearCart } = useCart();
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
@@ -23,18 +31,54 @@ export default function ShopPage() {
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [deliverySlot, setDeliverySlot] = useState('');
   const [reference, setReference] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState('');
+  const [pendingOrderPayload, setPendingOrderPayload] = useState<Record<string, unknown> | null>(null);
 
   const selectedItems = useMemo(() => items, [items]);
 
-  const handleCheckout = () => {
+  const prepareOrderPayload = () => ({
+    customerName,
+    customerEmail,
+    deliveryPhone,
+    orderType,
+    deliveryArea: orderType === 'delivery' ? deliveryArea : '',
+    deliveryAddress: orderType === 'delivery' ? deliveryAddress : '',
+    deliverySlot: orderType === 'delivery' ? deliverySlot : '',
+    items,
+    subtotal,
+    deliveryFee: orderType === 'delivery' ? deliveryFee : 0,
+    total,
+    paymentReference: `MCH-${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`,
+    uid: user?.uid ?? null,
+  });
+
+  const handleCheckout = async () => {
     if (!customerName || !customerEmail || !deliveryPhone) {
       alert('Please provide your name, email, and phone before placing an order.');
       return;
     }
 
-    const newReference = `MCH-${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`;
-    setReference(newReference);
-    alert(`Order placeholder created. Reference: ${newReference}`);
+    if (!items.length) {
+      alert('Please add at least one item to your cart.');
+      return;
+    }
+
+    setSubmitting(true);
+    setMessage('');
+
+    try {
+      const orderPayload = prepareOrderPayload();
+      const orderId = await createOrderRecord(orderPayload);
+      setPendingOrderPayload({ orderId, ...orderPayload, createdAt: new Date().toISOString() });
+      setReference(orderPayload.paymentReference);
+      setMessage('Please complete the payment to confirm your order.');
+    } catch (error) {
+      console.error(error);
+      setMessage('The order could not be submitted. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -144,10 +188,53 @@ export default function ShopPage() {
                   <input className="w-full rounded-full border border-[#e8f5e8] px-4 py-3" placeholder="Delivery slot" value={deliverySlot} onChange={(e) => setDeliverySlot(e.target.value)} />
                 </>
               ) : null}
-              <button type="button" onClick={handleCheckout} className="w-full rounded-full bg-[#7ed321] px-4 py-3 font-semibold text-white">
-                Place Order
+              <button type="button" onClick={handleCheckout} disabled={submitting} className="w-full rounded-full bg-[#7ed321] px-4 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70">
+                {submitting ? 'Preparing payment...' : 'Place Order'}
               </button>
+              {pendingOrderPayload ? (
+                <PaystackButton
+                  className="w-full rounded-full border border-[#7ed321] bg-white px-4 py-3 font-semibold text-[#2c5530]"
+                  text="Pay with Paystack"
+                  disabled={submitting}
+                  reference={reference}
+                  email={customerEmail}
+                  amount={getPaystackAmount(total)}
+                  publicKey={getPaystackPublicKey()}
+                  metadata={getPaystackMetadata({
+                    orderId: pendingOrderPayload.orderId,
+                    customerName,
+                    orderType,
+                    uid: user?.uid ?? null,
+                  })}
+                  channels={['card', 'bank']}
+                  onSuccess={async (response) => {
+                    try {
+                      if (!pendingOrderPayload) return;
+                      await submitWebhookOrder({
+                        event: 'charge.success',
+                        reference: response.reference,
+                        data: {
+                          reference: response.reference,
+                          amount: getPaystackAmount(total),
+                          status: 'success',
+                        },
+                        ...pendingOrderPayload,
+                      });
+                      setMessage('Payment confirmed. Your order is now being processed.');
+                      clearCart();
+                    } catch (error) {
+                      console.error(error);
+                      setMessage('Payment completed, but order confirmation failed. Please contact support.');
+                    }
+                  }}
+                  onClose={() => {
+                    setMessage('Payment window closed. Your order remains pending until payment is completed.');
+                  }}
+                />
+              ) : null}
               {reference ? <p className="text-sm text-[#2c5530]">Reference: {reference}</p> : null}
+              {liveWebhookUrl ? <p className="text-sm text-[#2c5530] break-all">Webhook: {liveWebhookUrl}</p> : null}
+              {message ? <p className="text-sm text-[#2c5530]">{message}</p> : null}
             </div>
           </div>
         </div>

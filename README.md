@@ -13,6 +13,14 @@ Create a `.env` file and set the following values before deploying:
 - `VITE_FIREBASE_MESSAGING_SENDER_ID`
 - `VITE_FIREBASE_APP_ID`
 - `VITE_PAYSTACK_PUBLIC_KEY`
+- `VITE_WEBHOOK_URL` (set this to your deployed webhook endpoint, such as `https://your-domain.com/api/webhook`)
+
+## Live Paystack test flow
+
+1. Start the app with `npm run dev` or deploy it to your hosting provider.
+2. Set `VITE_PAYSTACK_PUBLIC_KEY` to your Paystack test public key.
+3. Set `VITE_WEBHOOK_URL` to the public URL of your deployed webhook endpoint.
+4. Complete a Paystack test transaction to verify that the order is created and the webhook confirmation is received.
 
 ## Server-side secrets
 
