@@ -19,17 +19,17 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] text-[#333]">
-      <nav className="fixed top-0 z-50 w-full bg-white/95 px-8 py-4 shadow-[0_2px_10px_rgba(0,0,0,0.1)] backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
+      <nav className="fixed top-0 z-50 w-full border-b border-[#eef3eb] bg-white/95 px-4 py-3 shadow-[0_2px_10px_rgba(0,0,0,0.08)] backdrop-blur sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-2">
             <img
               src="https://i.ibb.co/yFgsqx49/IMG-20251112-WA0082.jpg"
               alt="May's Chills logo"
-              className="h-12 w-auto"
+              className="h-10 w-auto sm:h-12"
             />
-            <span className="text-xl font-semibold text-[#333]">May's Chills</span>
+            <span className="text-lg font-semibold text-[#333] sm:text-xl">May's Chills</span>
           </Link>
-          <ul className="hidden items-center gap-8 md:flex">
+          <ul className="hidden items-center gap-6 md:flex">
             {navItems.map((item) => (
               <li key={item.to}>
                 <NavLink
@@ -59,8 +59,8 @@ export default function Layout({ children }: LayoutProps) {
           </div>
         </div>
       </nav>
-      <main className="pt-24">{children}</main>
-      <footer className="bg-[#1a1a1a] px-8 py-16 text-white">
+      <main className="pt-20 sm:pt-24">{children}</main>
+      <footer className="bg-[#1a1a1a] px-4 py-12 text-white sm:px-6 lg:px-8 lg:py-16">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 md:flex-row md:justify-between">
           <div>
             <h3 className="mb-3 text-xl font-semibold">May&apos;s Chills</h3>
